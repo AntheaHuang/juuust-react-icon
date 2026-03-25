@@ -17,8 +17,8 @@ jobs:
       # 升级到 v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '10.x' # 你的项目逻辑依然可以使用旧版 Node
-          cache: 'yarn'        # 顺便开启缓存，加快速度
+          node-version: '20' 
+          cache: 'yarn'        
 
       - run: yarn install
 
