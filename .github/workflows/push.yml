@@ -2,8 +2,7 @@ name: icon-automation
 on:
   push:
     branches:
-    - master
-    # file paths to consider in the event. Optional; defaults to all.
+      - master
     paths:
       - package.json
 
@@ -12,29 +11,39 @@ jobs:
     name: figma icon automation
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+      # 升级到 v4，支持最新的 Node.js 运行环境
+      - uses: actions/checkout@v4
 
-    - uses: actions/setup-node@v1
-      with:
-        node-version: '10.x'
-    - run: yarn install
-    - name: Figma Action
-      uses: primer/figma-action@v1.0.0-alpha.2
-      with:
-        args: "format=svg outputDir=./src/"
-      env:
-        FIGMA_FILE_URL: ${{ secrets.FIGMA_FILE_URL }}
-        FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
-    - run: yarn generate
-    - run: yarn build:bundle
-    - run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
-    - run: yarn publish
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-    - run: yarn build
-    - name: GitHub Pages
-      uses: crazy-max/ghaction-github-pages@v1.2.5
-      with:
-        build_dir: docs
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      # 升级到 v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '10.x' # 你的项目逻辑依然可以使用旧版 Node
+          cache: 'yarn'        # 顺便开启缓存，加快速度
+
+      - run: yarn install
+
+      - name: Figma Action
+        uses: primer/figma-action@v1.0.0-alpha.2
+        with:
+          args: "format=svg outputDir=./src/"
+        env:
+          FIGMA_FILE_URL: ${{ secrets.FIGMA_FILE_URL }}
+          FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
+
+      - run: yarn generate
+      - run: yarn build:bundle
+      - run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
+      - run: yarn publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      
+      - run: yarn build
+
+      # 升级到 v4 (crazy-max/ghaction-github-pages)
+      - name: GitHub Pages
+        uses: crazy-max/ghaction-github-pages@v4
+        with:
+          target_branch: gh-pages
+          build_dir: docs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
