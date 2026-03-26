@@ -31,7 +31,8 @@ const client = Figma.Client({
 let fileId = null
 if (!fileId) {
   try {
-    fileId = FIGMA_FILE_URL.match(/file\/([a-z0-9]+)\//i)[1]
+    const match = FIGMA_FILE_URL.match(/(?:file|design)\/([a-zA-Z0-9]+)/);
+    fileId = match[1];
   } catch (e) {
     throw Error('Cannot find FIGMA_FILE_URL key in process!')
   }
